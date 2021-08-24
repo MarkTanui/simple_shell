@@ -2,7 +2,7 @@
 
 /**
  * shellLoop - Run the shell
- * @argv: n
+ * @argv: list of commands
  * Return: nothing
  */
 int shellLoop(char **argv)

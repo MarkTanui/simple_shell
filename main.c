@@ -12,8 +12,8 @@ void controlC(int var)
 
 /**
  * main - Simple Shell Project
- * @argc: m
- * @argv: m
+ * @argc: numner of commands/arguments
+ * @argv: array of string characters of commands/arguments
  * Return: nothing
  */
 int main(int argc, char **argv)
