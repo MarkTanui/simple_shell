@@ -1,94 +1,75 @@
-#include "holberton.h"
+#include "shell.h"
+
+char **_copy_env(void);
+void free_env(void);
+char **_getenv(const char *var);
 
 /**
- * _getenv - some
- * @name: a
- * Return: a
+ * _copy_env - Creates a copy of the environment.
+ *
+ * Return: If an error occurs - NULL.
+ *         O/w - a double pointer to the new copy.
  */
-char *_getenv(const char *name)
+char **_copy_env(void)
 {
-	int i, j;
-	int status;
+	char **new_environ;
+	size_t size;
+	int index;
 
-	for (i = 0; environ[i] != NULL; i++)
-	{
-		status = 1;
-		for (j = 0; environ[i][j] != '='; j++)
-		{
-			if (name[j] != environ[i][j])
-			{
-				status = 0;
-				break;
-			}
-		}
+	for (size = 0; environ[size]; size++)
+		;
 
-		if (status)
-		{
-			return (&environ[i][j + 1]);
-		}
-	}
-	return (NULL);
-}
-
-/**
- * _getpathdir - some
- * @path: a
- * @pathCopy: a
- * Return: a
- */
-Node *_getpathdir(char *path, char **pathCopy)
-{
-	char *token = NULL;
-	Node *head;
-	Node *pathNode;
-	char *delim = ":\0"; /* The null char is new */
-
-
-	if (path == NULL)
+	new_environ = malloc(sizeof(char *) * (size + 1));
+	if (!new_environ)
 		return (NULL);
 
-	*pathCopy = _strdup(path); /* Free on shellLoop() */
-
-	head = NULL;
-	pathNode = malloc(sizeof(Node));
-	if (pathNode == NULL)
-		return (NULL);
-
-	token = strtok(*pathCopy,  delim);
-	pathNode->str = token;
-	pathNode->next = head;
-	head = pathNode;
-	while (token != NULL)
+	for (index = 0; environ[index]; index++)
 	{
-		token = strtok(NULL, delim);
-		if (token == NULL) /* Don't save token NULL in list */
-			break;
-		pathNode = malloc(sizeof(Node));
-		if (pathNode == NULL)
+		new_environ[index] = malloc(_strlen(environ[index]) + 1);
+
+		if (!new_environ[index])
+		{
+			for (index--; index >= 0; index--)
+				free(new_environ[index]);
+			free(new_environ);
 			return (NULL);
-		pathNode->str = token;
-		pathNode->next = head;
-		head = pathNode;
+		}
+		_strcpy(new_environ[index], environ[index]);
 	}
-	return (head);
+	new_environ[index] = NULL;
 
+	return (new_environ);
 }
 
+/**
+ * free_env - Frees the the environment copy.
+ */
+void free_env(void)
+{
+	int index;
+
+	for (index = 0; environ[index]; index++)
+		free(environ[index]);
+	free(environ);
+}
 
 /**
- * listpath - Return a linked list of all directories of path
- * @pathCopy: a
- * Return: a
+ * _get_env - Gets an environmental variable from the PATH.
+ * @var: The name of the environmental variable to get.
+ *
+ * Return: If the environmental variable does not exist - NULL.
+ *         Otherwise - a pointer to the environmental variable.
  */
-Node *listpath(char **pathCopy)
+char **_get_env(const char *var)
 {
-	char *getEnv;
-	Node *pathDirs = NULL;
+	int index, len;
 
-	getEnv = _getenv("PATH");
-	if (*getEnv == '\0')
-		return (NULL);
-	pathDirs = _getpathdir(getEnv, pathCopy);
+	len = _strlen(var);
+	for (index = 0; environ[index]; index++)
+	{
+		if (_strncmp(var, environ[index], len) == 0)
+			return (&environ[index]);
+	}
 
-	return (pathDirs);
+	return (NULL);
 }
